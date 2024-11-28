@@ -54,11 +54,14 @@ class _SpecialOffersState extends State<SpecialOffers> {
                 numOfBrands: 18,
                 press: () {
                   // Naviguer vers la page des produits avec l'ID de la catégorie
-                  Navigator.pushNamed(
+                  Navigator.push(
                     context,
-                    ProductsScreen.routeName,
-                    arguments: category.id, // Passer l'ID numérique
+                    MaterialPageRoute(
+                      builder: (context) => ProductsScreen(categoryId: category.id),
+                    ),
                   );
+
+
                 },
               );
             }).toList(),

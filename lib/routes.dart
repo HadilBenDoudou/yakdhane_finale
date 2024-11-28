@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shop_app/screens/products/products_screen.dart';
 import 'screens/cart/cart_screen.dart';
@@ -17,6 +18,7 @@ import 'screens/complete_profile/components/complete_profile_form.dart';
 import 'screens/sign_in/components/sign_form.dart'; // Import du fichier contenant SignForm
 
 final Map<String, WidgetBuilder> routes = {
+
   InitScreen.routeName: (context) => const InitScreen(),
   SplashScreen.routeName: (context) => const SplashScreen(),
   SignInScreen.routeName: (context) => const SignInScreen(),
@@ -25,7 +27,6 @@ final Map<String, WidgetBuilder> routes = {
   SignUpScreen.routeName: (context) => const SignUpScreen(),
   OtpScreen.routeName: (context) => const OtpScreen(),
   HomeScreen.routeName: (context) => const HomeScreen(),
-  ProductsScreen.routeName: (context) => const ProductsScreen(),
   DetailsScreen.routeName: (context) => const DetailsScreen(),
   CartScreen.routeName: (context) => const CartScreen(),
   ProfileScreen.routeName: (context) => const ProfileScreen(),
@@ -39,6 +40,19 @@ final Map<String, WidgetBuilder> routes = {
     return SignUpStep2(email: email);
   },
 
+
   // Route pour le formulaire de connexion
   '/signin': (context) => const SignFormScreen(),
 };
+
+// Gestion spécifique pour ProductsScreen (nécessite un argument)
+Route<dynamic>? generateRoute(RouteSettings settings) {
+  if (settings.name == ProductsScreen.routeName) {
+    final int categoryId = settings.arguments as int;
+    return MaterialPageRoute(
+      builder: (context) => ProductsScreen(categoryId: categoryId),
+    );
+  }
+
+  return null; // Renvoie null si aucune route correspond
+}

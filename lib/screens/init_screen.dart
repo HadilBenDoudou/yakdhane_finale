@@ -33,6 +33,7 @@ class _InitScreenState extends State<InitScreen> {
     const Center(
       child: Text("Chat"),
     ),
+    FavoriteScreen(),
     ProfileScreen(),  // Retirer le mot-clé 'const'
     CameraStreamPage(), // Ajout de CameraStreamPage dans la liste des pages
   ];

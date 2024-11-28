@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../constants.dart'; // Assurez-vous que cette constante est définie
+import '../../../components/product_card.dart';
 import '../../../models/Produit.dart';
+import 'ProductDetailsScreen.dart';
 import 'ProductService.dart';
 
 class PopularProducts extends StatefulWidget {
-  const PopularProducts({super.key});
+  const PopularProducts({Key? key}) : super(key: key);
 
   @override
   _PopularProductsState createState() => _PopularProductsState();
@@ -12,6 +13,7 @@ class PopularProducts extends StatefulWidget {
 
 class _PopularProductsState extends State<PopularProducts> {
   late List<Product> popularProducts = [];
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -19,118 +21,60 @@ class _PopularProductsState extends State<PopularProducts> {
     loadPopularProducts();
   }
 
-  void loadPopularProducts() async {
-    final products = await ProductService().fetchPopularProducts();
-    setState(() {
-      popularProducts = products;
-    });
+  Future<void> loadPopularProducts() async {
+    try {
+      final products = await ProductService().fetchPopularProducts();
+      setState(() {
+        popularProducts = products;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      debugPrint('Erreur lors du chargement des produits populaires : $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Text(
-              "Popular Product",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Text(
+            "Produits Populaires",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          popularProducts.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+        ),
+        isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : popularProducts.isEmpty
+            ? const Center(child: Text("Aucun produit populaire trouvé."))
+            : SizedBox(
+          height: 280,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
             itemCount: popularProducts.length,
             itemBuilder: (context, index) {
               final product = popularProducts[index];
-              return ProductCard(product: product);
+              return ProductCard(
+                product: product,
+                onPress: () {
+                  // Navigation vers la page de détails produit
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductDetailsScreen(product: product),  // Passage du produit
+                    ),
+                  );
+                },
+              );
             },
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class ProductCard extends StatelessWidget {
-  final Product product;
-
-  const ProductCard({
-    Key? key,
-    required this.product,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-      child: Row(
-        children: [
-          // Image du produit
-          SizedBox(
-            width: 88,
-            child: AspectRatio(
-              aspectRatio: 0.88,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5F6F9),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: product.imageUrl != null
-                    ?Image.network(
-                  product.imageUrl!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    print("Erreur lors du chargement de l'image : $error");
-                    return const Icon(Icons.broken_image, size: 50);
-                  },
-                )
-
-                    : const Icon(Icons.image_not_supported, size: 50),
-              ),
-            ),
-          ),
-          const SizedBox(width: 20),
-          // Détails du produit
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.name,
-                  style: const TextStyle(color: Colors.black, fontSize: 16),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                Text.rich(
-                  TextSpan(
-                    text: "\$${product.price.toStringAsFixed(2)}",
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600, color: kPrimaryColor),
-                    children: [
-                      TextSpan(
-                        text: product.description != null
-                            ? "\n${product.description}"
-                            : "",
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

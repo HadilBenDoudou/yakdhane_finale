@@ -4,6 +4,8 @@ class Product {
   final String? description; // Peut être null
   final String? imageUrl; // Peut être null
   final double price;
+  final bool isPopular; // Nouveau champ
+
 
   Product({
     required this.id,
@@ -11,6 +13,8 @@ class Product {
     this.description, // Champs optionnels
     this.imageUrl, // Champs optionnels
     required this.price,
+    this.isPopular = false, // Valeur par défaut : non populaire
+
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
